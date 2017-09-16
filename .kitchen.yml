@@ -1,19 +1,20 @@
 driver:
-  name: vagrant
-  require_chef_omnibus: true
+  name: docker
+  binary: docker
+  use_sudo: false
 
-chef_versions:
-- 11
-- 12
+provisioner:
+  name: chef_solo
 
 platforms:
-- name: ubuntu-12.04
-  run_list:
-  - recipe[apt]
-- name: ubuntu-10.04
-  run_list:
-    - recipe[apt]
-- name: centos-6.4
+- name: ubuntu
+  driver_config:
+    privileged: true
+    memory: 256m
+    provision_command:
+    - echo "root:password" | chpasswd
+    - sed -i 's/Defaults   requiretty/#Defaults   requiretty/g' /etc/sudoers
+    - "apt-get install -y cron build-essential"
 
 suites:
 - name: default
