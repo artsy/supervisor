@@ -76,7 +76,12 @@ action :restart do
     raise "Supervisor service #{new_resource.name} cannot be restarted because it does not exist"
   else
     converge_by("Restarting #{ new_resource }") do
-      if not supervisorctl('restart')
+      if new_resource.restart_command
+        result = Mixlib::ShellOut.new(new_resource.restart_command).run_command
+        if not result.exitstatus == 0
+          raise "Restart command '#{new_resource.restart_command}' failed with exitstatus #{result.exitstatus}"
+        end
+      elsif not supervisorctl('restart')
         raise "Supervisor service #{new_resource.name} was unable to be started"
       end
     end
