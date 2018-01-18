@@ -77,6 +77,7 @@ action :restart do
   else
     converge_by("Restarting #{ new_resource }") do
       if new_resource.restart_command
+        Chef::Log.info "Running restart command '#{new_resource.restart_command}'"
         result = Mixlib::ShellOut.new(new_resource.restart_command).run_command
         if not result.exitstatus == 0
           raise "Restart command '#{new_resource.restart_command}' failed with exitstatus #{result.exitstatus}"

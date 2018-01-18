@@ -69,6 +69,7 @@ end
 
 action :restart  do
   converge_by("Restarting #{ new_resource }") do
+    Chef::Log.info "Running 'supervisorctl restart #{new_resource.group_name}:*'"
     execute "supervisorctl restart #{new_resource.group_name}:*" do
       user "root"
     end
