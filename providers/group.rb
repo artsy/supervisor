@@ -19,54 +19,66 @@
 #
 
 action :enable do
-  execute "supervisorctl update" do
-    action :nothing
-    user "root"
-  end
+  converge_by("Enabling #{ new_resource }") do
+    execute "supervisorctl update" do
+      action :nothing
+      user "root"
+    end
 
-  template "#{node['supervisor']['dir']}/#{new_resource.group_name}.conf" do
-    source "group.conf.erb"
-    cookbook "supervisor"
-    owner "root"
-    group "root"
-    mode "644"
-    variables :prog => new_resource
-    notifies :run, "execute[supervisorctl update]", :immediately
+    template "#{node['supervisor']['dir']}/#{new_resource.group_name}.conf" do
+      source "group.conf.erb"
+      cookbook "supervisor"
+      owner "root"
+      group "root"
+      mode "644"
+      variables :prog => new_resource
+      notifies :run, "execute[supervisorctl update]", :immediately
+    end
   end
 end
 
 action :disable do
-  execute "supervisorctl update" do
-    action :nothing
-    user "root"
-  end
+  converge_by("Disabling #{ new_resource }") do
+    execute "supervisorctl update" do
+      action :nothing
+      user "root"
+    end
 
-  file "#{node['supervisor']['dir']}/#{new_resource.group_name}.conf" do
-    action :delete
-    notifies :run, "execute[supervisorctl update]", :immediately
+    file "#{node['supervisor']['dir']}/#{new_resource.group_name}.conf" do
+      action :delete
+      notifies :run, "execute[supervisorctl update]", :immediately
+    end
   end
 end
 
 action :start do
-  execute "supervisorctl start #{new_resource.group_name}:*" do
-    user "root"
+  converge_by("Starting #{ new_resource }") do
+    execute "supervisorctl start #{new_resource.group_name}:*" do
+      user "root"
+    end
   end
 end
 
 action :stop do
-  execute "supervisorctl stop #{new_resource.group_name}:*" do
-    user "root"
+  converge_by("Stopping #{ new_resource }") do
+    execute "supervisorctl stop #{new_resource.group_name}:*" do
+      user "root"
+    end
   end
 end
 
 action :restart  do
-  execute "supervisorctl restart #{new_resource.group_name}:*" do
-    user "root"
+  converge_by("Restarting #{ new_resource }") do
+    execute "supervisorctl restart #{new_resource.group_name}:*" do
+      user "root"
+    end
   end
 end
 
 action :reload  do
-  execute "supervisorctl restart #{new_resource.group_name}:*" do
-    user "root"
+  converge_by("Reloading #{ new_resource }") do
+    execute "supervisorctl restart #{new_resource.group_name}:*" do
+      user "root"
+    end
   end
 end
