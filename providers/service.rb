@@ -76,14 +76,26 @@ action :restart do
     raise "Supervisor service #{new_resource.name} cannot be restarted because it does not exist"
   else
     converge_by("Restarting #{ new_resource }") do
-      if new_resource.restart_command
-        Chef::Log.info "Running restart command '#{new_resource.restart_command}'"
-        result = Mixlib::ShellOut.new(new_resource.restart_command).run_command
-        if not result.exitstatus == 0
-          raise "Restart command '#{new_resource.restart_command}' failed with exitstatus #{result.exitstatus}"
-        end
-      elsif not supervisorctl('restart')
+      if not supervisorctl('restart')
         raise "Supervisor service #{new_resource.name} was unable to be started"
+      end
+    end
+  end
+end
+
+action :custom_restart do
+  case current_resource.state
+  when 'UNAVAILABLE'
+    raise "Supervisor service #{new_resource.name} cannot be restarted because it does not exist"
+  else
+    converge_by("Custom restarting #{ new_resource }") do
+      if new_resource.custom_restart_command.nil?
+        raise "Required attribute custom_restart_command unset!"
+      end
+      Chef::Log.info "Running custom restart command '#{new_resource.custom_restart_command}'"
+      result = Mixlib::ShellOut.new(new_resource.custom_restart_command).run_command
+      if not result.exitstatus == 0
+        raise "Custom restart command '#{new_resource.custom_restart_command}' failed with exitstatus #{result.exitstatus}"
       end
     end
   end
